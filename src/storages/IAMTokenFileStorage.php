@@ -9,6 +9,7 @@
 namespace razmik\yandex_vision\storages;
 
 
+use razmik\yandex_vision\exceptions\YandexVisionIAMTokenException;
 use razmik\yandex_vision\IAMToken;
 
 /**
@@ -20,7 +21,7 @@ use razmik\yandex_vision\IAMToken;
 class IAMTokenFileStorage implements IAMTokenStorageInterface
 {
     /** @var string */
-    private const FILE_NAME = "YandexIAMToken";
+    private const FILE_NAME = "YandexVisionIAMToken";
 
     /**
      * Путь к файлу
@@ -40,13 +41,14 @@ class IAMTokenFileStorage implements IAMTokenStorageInterface
     /**
      * @inheritDoc
      */
-    public function fetchToken(): ?IAMToken
+    public function loadToken(): ?IAMToken
     {
         $pathToFile = $this->pathToFile;
 
-        if (file_exists($pathToFile) === false) {
-            return null;
-        } elseif (($content = file_get_contents($pathToFile)) === false) {
+        if (
+            file_exists($pathToFile) === false ||
+            ($content = file_get_contents($pathToFile)) === false
+        ) {
             return null;
         }
         $dateAt = filemtime($pathToFile);
@@ -56,16 +58,22 @@ class IAMTokenFileStorage implements IAMTokenStorageInterface
 
     /**
      * @inheritDoc
+     * @throws YandexVisionIAMTokenException
      */
     public function saveToken(string $token): void
     {
         $pathToFile = $this->pathToFile;
 
-        if (file_exists($pathToFile) === false) {
-            unlink($pathToFile);
+        if (
+            file_exists($pathToFile) === true &&
+            unlink($pathToFile) === false
+        ) {
+            throw new YandexVisionIAMTokenException("Не удалось удалить токен авторизации");
         }
 
-        file_put_contents($pathToFile, $token);
+        if (file_put_contents($pathToFile, $token) === false) {
+            throw new YandexVisionIAMTokenException("Не удалось сохранить токен авторизации");
+        }
     }
 
     /**

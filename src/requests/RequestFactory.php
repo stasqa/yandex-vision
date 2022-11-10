@@ -16,9 +16,6 @@ namespace razmik\yandex_vision\requests;
  */
 class RequestFactory
 {
-    /** @var string */
-    private const TEXT_DETECTION = "TEXT_DETECTION";
-
     /**
      * YandexRequestFactory constructor.
      */
@@ -30,26 +27,14 @@ class RequestFactory
      * Создание запроса на распознание текста
      *
      * @param string $folderId
-     * @param TextDetectionRequest $request
+     * @param RequestInterface $request
      * @return array
      */
-    public static function textDetectionByRequest(string $folderId, TextDetectionRequest $request): array
+    public static function create(string $folderId, RequestInterface $request): array
     {
         return [
             "folderId" => $folderId,
-            "analyze_specs" => [
-                "content" => $request->getContent(),
-                "features" => [
-                    [
-                        "type" => self::TEXT_DETECTION,
-                        "text_detection_config" => [
-                            "language_codes" => $request->getLanguages(),
-                            "model" => $request->getModel(),
-                        ],
-                    ],
-                ],
-            ],
+            "analyze_specs" => $request->getConfig(),
         ];
     }
 }
-

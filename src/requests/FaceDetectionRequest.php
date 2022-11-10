@@ -10,18 +10,18 @@ namespace razmik\yandex_vision\requests;
 
 use razmik\yandex_vision\documents\AbstractDocument;
 use razmik\yandex_vision\exceptions\YandexVisionDocumentException;
-use razmik\yandex_vision\models\TextDetectionModelInterface;
+use razmik\yandex_vision\models\FaceDetectionModelInterface;
 
 /**
- * Запрос на распознание документа
+ * Запрос обнаружения лиц
  *
- * Class TextDetectionRequest
+ * Class FaceDetectionRequest
  * @package razmik\yandex_vision\requests
  */
-class TextDetectionRequest implements RequestInterface
+class FaceDetectionRequest implements RequestInterface
 {
     /** @var string */
-    private const TYPE = "TEXT_DETECTION";
+    private const TYPE = "FACE_DETECTION";
 
     /**
      * Документ на распознание
@@ -33,17 +33,17 @@ class TextDetectionRequest implements RequestInterface
     /**
      * Модель распознания
      *
-     * @var TextDetectionModelInterface
+     * @var FaceDetectionModelInterface
      */
     private $model;
 
     /**
      * @param AbstractDocument $document
-     * @param TextDetectionModelInterface $model
+     * @param FaceDetectionModelInterface $model
      */
     public function __construct(
         AbstractDocument            $document,
-        TextDetectionModelInterface $model
+        FaceDetectionModelInterface $model
     )
     {
         $this->document = $document;
@@ -57,17 +57,12 @@ class TextDetectionRequest implements RequestInterface
     public function getConfig(): array
     {
         $document = $this->document;
-        $model = $this->model;
 
         return [
             "content" => $document->getBase64Content(),
             "features" => [
                 [
                     "type" => self::TYPE,
-                    "text_detection_config" => [
-                        "language_codes" => $model->getLanguages(),
-                        "model" => $model->getModelName(),
-                    ],
                 ],
             ],
             "mime_type" => $document->getMimeType(),

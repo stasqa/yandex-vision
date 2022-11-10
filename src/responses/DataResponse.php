@@ -14,7 +14,7 @@ namespace razmik\yandex_vision\responses;
  * Class DataResponse
  * @package razmik\yandex_vision\responses
  */
-class DataResponse extends AbstractYandexVisionResponse
+class DataResponse extends AbstractResponse
 {
     /**
      * Данные ответа

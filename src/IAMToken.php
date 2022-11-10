@@ -16,8 +16,8 @@ namespace razmik\yandex_vision;
  */
 class IAMToken
 {
-    /** @var int  */
-    private const IAM_TOKEN_EXPIRED = 6 * 60 * 60;
+    /** @var int */
+    public static $expiredAt = 8 * 60 * 60;
 
     /**
      * Токен
@@ -66,6 +66,6 @@ class IAMToken
      */
     public function isExpired(): bool
     {
-        return $this->createdAt + self::IAM_TOKEN_EXPIRED <= time();
+        return $this->createdAt + $this::$expiredAt <= time();
     }
 }

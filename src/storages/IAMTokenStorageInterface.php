@@ -23,7 +23,7 @@ interface IAMTokenStorageInterface
      *
      * @return IAMToken|null
      */
-    public function fetchToken(): ?IAMToken;
+    public function loadToken(): ?IAMToken;
 
     /**
      * Сохранение токена авторизации

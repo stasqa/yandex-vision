@@ -10,18 +10,18 @@ namespace razmik\yandex_vision\requests;
 
 use razmik\yandex_vision\documents\AbstractDocument;
 use razmik\yandex_vision\exceptions\YandexVisionDocumentException;
-use razmik\yandex_vision\models\TextDetectionModelInterface;
+use razmik\yandex_vision\models\ClassificationModelInterface;
 
 /**
- * Запрос на распознание документа
+ * Запрос классификация изображения
  *
- * Class TextDetectionRequest
+ * Class ClassificationRequest
  * @package razmik\yandex_vision\requests
  */
-class TextDetectionRequest implements RequestInterface
+class ClassificationRequest implements RequestInterface
 {
     /** @var string */
-    private const TYPE = "TEXT_DETECTION";
+    private const TYPE = "CLASSIFICATION";
 
     /**
      * Документ на распознание
@@ -33,17 +33,17 @@ class TextDetectionRequest implements RequestInterface
     /**
      * Модель распознания
      *
-     * @var TextDetectionModelInterface
+     * @var ClassificationModelInterface
      */
     private $model;
 
     /**
      * @param AbstractDocument $document
-     * @param TextDetectionModelInterface $model
+     * @param ClassificationModelInterface $model
      */
     public function __construct(
-        AbstractDocument            $document,
-        TextDetectionModelInterface $model
+        AbstractDocument             $document,
+        ClassificationModelInterface $model
     )
     {
         $this->document = $document;
@@ -64,8 +64,7 @@ class TextDetectionRequest implements RequestInterface
             "features" => [
                 [
                     "type" => self::TYPE,
-                    "text_detection_config" => [
-                        "language_codes" => $model->getLanguages(),
+                    "classificationConfig" => [
                         "model" => $model->getModelName(),
                     ],
                 ],

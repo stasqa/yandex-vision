@@ -8,10 +8,16 @@
 
 namespace razmik\yandex_vision\clients;
 
+use razmik\yandex_vision\IAMToken;
+use razmik\yandex_vision\requests\ClassificationRequest;
+use razmik\yandex_vision\requests\FaceDetectionRequest;
 use razmik\yandex_vision\requests\RequestFactory;
+use razmik\yandex_vision\requests\RequestInterface;
 use razmik\yandex_vision\requests\TextDetectionRequest;
+use razmik\yandex_vision\responses\AbstractResponse;
 use razmik\yandex_vision\responses\DataResponse;
 use razmik\yandex_vision\responses\IAMTokenResponse;
+use razmik\yandex_vision\responses\ResponseFactory;
 
 /**
  * Клиент работы с API по умолчанию
@@ -19,42 +25,67 @@ use razmik\yandex_vision\responses\IAMTokenResponse;
  * Class YandexVisionApiClient
  * @package razmik\yandex_vision\clients
  */
-class YandexVisionApiClient extends AbstractYandexApiClient
+class YandexVisionApiClient extends AbstractYandexVisionApiClient
 {
     /**
      * @inheritDoc
      */
-    public function getDocumentRecognition(TextDetectionRequest $request): DataResponse
+    public function textDetection(IAMToken $IAMToken, TextDetectionRequest $request): AbstractResponse
     {
-        $url = rtrim(self::API_VISION_HOST, '/') . '/batchAnalyze';
-        $body = RequestFactory::textDetectionByRequest($this->folderId, $request);
-        $header = [
-            "Content-Type: application/json",
-            "Authorization: Bearer {$request->getIAMToken()}",
-        ];
-
-        return $this->sendPostRequest($url, $body, $header);
+        return $this->sendBatchAnalyze($IAMToken, $request);
     }
 
     /**
      * @inheritDoc
      */
-    public function fetchIAMToken(): ?IAMTokenResponse
+    public function classification(IAMToken $IAMToken, ClassificationRequest $request): AbstractResponse
+    {
+        return $this->sendBatchAnalyze($IAMToken, $request);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function faceDetection(IAMToken $IAMToken, FaceDetectionRequest $request): AbstractResponse
+    {
+        return $this->sendBatchAnalyze($IAMToken, $request);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function fetchIAMToken(): AbstractResponse
     {
         $url = rtrim(self::API_IAM_HOST, '/') . '/tokens';
-        $body = ['yandexPassportOauthToken' => $this->oathToken];
+        $body = [
+            'yandexPassportOauthToken' => $this->oathToken,
+        ];
         $response = $this->sendPostRequest($url, $body);
 
         if ($response->isSuccess() === false) {
-            return null;
+            return $response;
         }
         $data = $response->getData();
 
-        return new IAMTokenResponse(
-            $response->getHttpCode(),
-            $data['iamToken'],
-            $data['expiresAt']
-        );
+        return new IAMTokenResponse($data['iamToken'], $data['expiresAt']);
+    }
+
+    /**
+     * Отправка документа на анализ
+     *
+     * @param IAMToken $IAMToken
+     * @param RequestInterface $request
+     * @return AbstractResponse
+     */
+    private function sendBatchAnalyze(IAMToken $IAMToken, RequestInterface $request): AbstractResponse
+    {
+        $url = rtrim(self::API_VISION_HOST, '/') . '/batchAnalyze';
+        $body = RequestFactory::create($this->folderId, $request);
+        $header = [
+            "Authorization: Bearer {$IAMToken->getToken()}",
+        ];
+
+        return $this->sendPostRequest($url, $body, $header);
     }
 
     /**
@@ -65,7 +96,7 @@ class YandexVisionApiClient extends AbstractYandexApiClient
      * @param array $headers
      * @return DataResponse
      */
-    private function sendPostRequest(string $url, array $body, array $headers = []): DataResponse
+    private function sendPostRequest(string $url, array $body, array $headers = []): AbstractResponse
     {
         $headers = array_merge($headers, [
             'Content-Type: application/json',
@@ -82,7 +113,7 @@ class YandexVisionApiClient extends AbstractYandexApiClient
         $html = curl_exec($ch);
         $data = json_decode($html, true);
 
-        return new DataResponse(
+        return ResponseFactory::createByHttpCode(
             curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
             $data !== null ? $data : [$html]
         );

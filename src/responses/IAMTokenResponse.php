@@ -14,7 +14,7 @@ namespace razmik\yandex_vision\responses;
  * Class IAMTokenResponse
  * @package razmik\yandex_vision\responses
  */
-class IAMTokenResponse extends AbstractYandexVisionResponse
+class IAMTokenResponse extends AbstractResponse
 {
     /**
      * Токен
@@ -34,18 +34,18 @@ class IAMTokenResponse extends AbstractYandexVisionResponse
      * @inheritDoc
      * @param array $iamToken
      */
-    public function __construct(int $httpCode, string $iamToken, string $expires)
+    public function __construct(string $iamToken, string $expires)
     {
-        parent::__construct($httpCode);
+        parent::__construct(self::HTTP_SUCCESS_CODE);
 
         $this->iamToken = $iamToken;
         $this->expires = $expires;
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getIamToken()
+    public function getIamToken(): string
     {
         return $this->iamToken;
     }

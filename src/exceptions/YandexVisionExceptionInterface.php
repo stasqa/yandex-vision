@@ -16,5 +16,4 @@ namespace razmik\yandex_vision\exceptions;
  */
 interface YandexVisionExceptionInterface
 {
-
 }
