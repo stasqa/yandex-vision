@@ -85,7 +85,7 @@ class PassportEntity extends AbstractTextDetectionEntity
      *
      * @var string|null
      */
-    protected $issue_by;
+    protected $issued_by;
 
     /**
      * Код подразделения
@@ -204,6 +204,6 @@ class PassportEntity extends AbstractTextDetectionEntity
      */
     public function getIssueBy(): ?string
     {
-        return $this->issue_by;
+        return $this->issued_by;
     }
 }
